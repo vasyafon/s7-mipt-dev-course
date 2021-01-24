@@ -1,0 +1,850 @@
+openapi: 3.0.0
+info:
+  license:
+    name: MIT
+  title: Auth server
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/api/auth/v1
+paths:
+  /admin/groups:
+    get:
+      operationId: admin_list_groups
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupList'
+          description: Groups list
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: list all groups
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    post:
+      operationId: admin_add_group
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupPost'
+        description: User parameters
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupFull'
+          description: User Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: add new group
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+      x-codegen-request-body-name: body
+  /admin/groups/{groupId}:
+    delete:
+      operationId: admin_remove_group
+      parameters:
+      - explode: false
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Remove group from the system
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    get:
+      operationId: admin_get_group
+      parameters:
+      - explode: false
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupFull'
+          description: Group
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Get group
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    put:
+      operationId: admin_group_put
+      parameters:
+      - explode: false
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupFull'
+        description: User parameters
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupFull'
+          description: User Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Edit group
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+      x-codegen-request-body-name: body
+  /admin/refreshTokens:
+    get:
+      operationId: list_refresh_tokens
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminRefreshTokenList'
+          description: Refresh tokens list
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: list all refresh tokens
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    post:
+      operationId: generate_refresh_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminRefreshTokenInfoPost'
+        description: Token setup
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+          description: Tokens
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: generate refresh token with arbitrary lifetime e.g. for services
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+      x-codegen-request-body-name: body
+  /admin/refreshTokens/{tokenId}:
+    delete:
+      operationId: revoke_refresh_token
+      parameters:
+      - explode: false
+        in: path
+        name: tokenId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: generate refresh token with arbitrary lifetime e.g. for services
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    get:
+      operationId: get_token_info
+      parameters:
+      - explode: false
+        in: path
+        name: tokenId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminRefreshTokenInfo'
+          description: Refresh tokens list
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: list all refresh tokens
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+  /admin/users:
+    get:
+      operationId: admin_list_users
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoList'
+          description: Users list
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: list all users
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    post:
+      operationId: admin_add_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+        description: User parameters
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+          description: User Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: add new user
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+      x-codegen-request-body-name: body
+  /admin/users/{userId}:
+    delete:
+      operationId: admin_remove_user
+      parameters:
+      - explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Remove user from the system
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    get:
+      operationId: admin_get_user_info
+      parameters:
+      - explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+          description: User Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Get user info
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+    put:
+      operationId: admin_user_put
+      parameters:
+      - explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+        description: User parameters
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+          description: User Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: Edit user
+      tags:
+      - admin
+      x-openapi-router-controller: auth_server.controllers.admin_controller
+      x-codegen-request-body-name: body
+  /authGoogle:
+    get:
+      operationId: auth_google
+      parameters:
+      - explode: true
+        in: query
+        name: state
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: code
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: scope
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+          description: User tokens
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      summary: Authenticate on Google
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+  /health/liveness:
+    get:
+      operationId: health_liveness_get
+      responses:
+        "200":
+          description: OK
+      summary: liveness probe
+      tags:
+      - health
+      x-openapi-router-controller: auth_server.controllers.health_controller
+  /health/readiness:
+    get:
+      operationId: health_readiness_get
+      responses:
+        "200":
+          description: OK
+      summary: readiness probe
+      tags:
+      - health
+      x-openapi-router-controller: auth_server.controllers.health_controller
+  /login:
+    post:
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+        required: true
+        x-body-name: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+          description: User tokens
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      summary: Authenticate on OpenID
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+      x-codegen-request-body-name: body
+  /loginGoogle:
+    get:
+      operationId: open_google_auth
+      responses:
+        "302":
+          description: Redirection to Google
+      summary: Redirect to Google Authentication
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+  /publicKey:
+    get:
+      operationId: get_public_key
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicKey'
+          description: Public key
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      summary: get public key to decrypt access tokens
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+  /refresh:
+    post:
+      operationId: refresh
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: Access token
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - RefreshAuth: []
+      summary: generate access token from refresh token
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+  /userInfo:
+    get:
+      operationId: get_user_info
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+          description: User information
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: get user information
+      tags:
+      - auth
+      x-openapi-router-controller: auth_server.controllers.auth_controller
+components:
+  schemas:
+    LoginCredentials:
+      example:
+        redirectUri: redirectUri
+        code: code
+        codeVerifier: codeVerifier
+        nonce: nonce
+      properties:
+        code:
+          type: string
+        codeVerifier:
+          type: string
+        nonce:
+          type: string
+        redirectUri:
+          type: string
+      type: object
+    Tokens:
+      example:
+        accessToken:
+          expiresAt: 2000-01-23T04:56:07.000+00:00
+          token: token
+        refreshToken:
+          expiresAt: 2000-01-23T04:56:07.000+00:00
+          token: token
+      properties:
+        refreshToken:
+          $ref: '#/components/schemas/TokenResponse'
+        accessToken:
+          $ref: '#/components/schemas/TokenResponse'
+      type: object
+    TokenResponse:
+      example:
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        token: token
+      properties:
+        token:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+      type: object
+    PublicKey:
+      example:
+        publicKey: publicKey
+      properties:
+        publicKey:
+          type: string
+      type: object
+    AdminRefreshTokenInfo:
+      example:
+        expirationDateTime: 2000-01-23T04:56:07.000+00:00
+        tokenId: tokenId
+        tokenName: tokenName
+        groups:
+        - mode: READ
+          groupId: groupId
+          description: description
+        - mode: READ
+          groupId: groupId
+          description: description
+      properties:
+        tokenId:
+          type: string
+        tokenName:
+          type: string
+        expirationDateTime:
+          format: date-time
+          type: string
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupInfo'
+          type: array
+      type: object
+    AdminRefreshTokenInfoPost:
+      example:
+        expirationDateTime: 2000-01-23T04:56:07.000+00:00
+        tokenName: tokenName
+        groups:
+        - mode: READ
+          groupId: groupId
+          description: description
+        - mode: READ
+          groupId: groupId
+          description: description
+      properties:
+        tokenName:
+          type: string
+        expirationDateTime:
+          format: date-time
+          type: string
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupInfo'
+          type: array
+      type: object
+    AdminRefreshTokenList:
+      example:
+        refreshTokenInfo:
+        - expirationDateTime: 2000-01-23T04:56:07.000+00:00
+          tokenId: tokenId
+          tokenName: tokenName
+          groups:
+          - mode: READ
+            groupId: groupId
+            description: description
+          - mode: READ
+            groupId: groupId
+            description: description
+        - expirationDateTime: 2000-01-23T04:56:07.000+00:00
+          tokenId: tokenId
+          tokenName: tokenName
+          groups:
+          - mode: READ
+            groupId: groupId
+            description: description
+          - mode: READ
+            groupId: groupId
+            description: description
+      properties:
+        refreshTokenInfo:
+          items:
+            $ref: '#/components/schemas/AdminRefreshTokenInfo'
+          type: array
+      type: object
+    GroupInfo:
+      example:
+        mode: READ
+        groupId: groupId
+        description: description
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string
+        mode:
+          enum:
+          - READ
+          - WRITE
+          - ADMIN
+          type: string
+      type: object
+    UserInfo:
+      example:
+        globalRole: ADMIN
+        groups:
+        - mode: READ
+          groupId: groupId
+          description: description
+        - mode: READ
+          groupId: groupId
+          description: description
+        userId: userId
+      properties:
+        userId:
+          type: string
+        globalRole:
+          enum:
+          - ADMIN
+          - USER
+          type: string
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupInfo'
+          type: array
+      type: object
+    UserInfoList:
+      example:
+        users:
+        - globalRole: ADMIN
+          groups:
+          - mode: READ
+            groupId: groupId
+            description: description
+          - mode: READ
+            groupId: groupId
+            description: description
+          userId: userId
+        - globalRole: ADMIN
+          groups:
+          - mode: READ
+            groupId: groupId
+            description: description
+          - mode: READ
+            groupId: groupId
+            description: description
+          userId: userId
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserInfo'
+          type: array
+      type: object
+    ApiError:
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    UserInGroup:
+      example:
+        mode: READ
+        userId: userId
+      properties:
+        userId:
+          type: string
+        mode:
+          enum:
+          - READ
+          - WRITE
+          - ADMIN
+          type: string
+      type: object
+    GroupFull:
+      example:
+        groupId: groupId
+        description: description
+        users:
+        - mode: READ
+          userId: userId
+        - mode: READ
+          userId: userId
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string
+        users:
+          items:
+            $ref: '#/components/schemas/UserInGroup'
+          type: array
+      type: object
+    GroupList:
+      example:
+        groups:
+        - groupId: groupId
+          description: description
+          users:
+          - mode: READ
+            userId: userId
+          - mode: READ
+            userId: userId
+        - groupId: groupId
+          description: description
+          users:
+          - mode: READ
+            userId: userId
+          - mode: READ
+            userId: userId
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupFull'
+          type: array
+      type: object
+    GroupPost:
+      example:
+        groupId: groupId
+        description: description
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string
+      type: object
+  securitySchemes:
+    RefreshAuth:
+      scheme: bearer
+      type: http
+      x-bearerInfoFunc: auth_server.controllers.security_controller_.info_from_RefreshAuth
+    BearerAuth:
+      scheme: bearer
+      type: http
+      x-bearerInfoFunc: auth_server.controllers.security_controller_.info_from_BearerAuth

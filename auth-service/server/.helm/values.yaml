@@ -1,0 +1,76 @@
+# Default values for application.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+#
+image:
+  imagePullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+env:
+  - name: PYTHONUNBUFFERED
+    value: "1"
+  - name: DB_SCHEMA
+    value: "auth"
+  - name: LOGGING_SCHEMA
+    value: "current"
+  - name: "PORT"
+    value: "8080"
+
+imageCredentials:
+  secretName: dsm-pull-secret
+
+envFrom:
+  - secretRef:
+      name: dsm-auth-db-secret
+  - secretRef:
+      name: sso-secret
+  - secretRef:
+      name: flask-secret
+  - secretRef:
+      name: dsm-auth-secret
+containers:
+  containerPort: 8080
+  readinessProbePath: /api/auth/v2/health/readiness
+  livenessProbePath: /api/auth/v2/health/liveness
+
+service:
+  type: ClusterIP
+  name: dsm-auth-v2
+  port: 8080
+
+ingress:
+  enabled: true
+  tls: true
+  hosts:
+    - paths:
+        - path: /api/auth/v2
+          serviceName: dsm-auth-v2
+  annotations:
+    certmanager.k8s.io/issuer: vault-dsm
+
+
+#   args: []
+#   volumeMounts: []
+#   restartPolicy: Never
+#   volumes: []
+#   schedule:  "*/1 * * * *"
+#   successfulJobsHistoryLimit: 1
+
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 512Mi
+  requests:
+    cpu: 300m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

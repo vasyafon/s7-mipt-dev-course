@@ -1,0 +1,699 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Auth server
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080/api/auth/v1
+paths:
+  /health/liveness:
+    get:
+      summary: liveness probe
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+  /health/readiness:
+    get:
+      summary: readiness probe
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+
+  /login:
+    post:
+      summary: Authenticate on OpenID
+      operationId: login
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+      responses:
+        '200':
+          description: User tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tokens"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /loginGoogle:
+    get:
+      summary: Redirect to Google Authentication
+      operationId: openGoogleAuth
+      tags:
+        - auth
+      responses:
+        '302':
+          description: Redirection to Google
+  /authGoogle:
+    get:
+      summary: Authenticate on Google
+      operationId: authGoogle
+      tags:
+        - auth
+      parameters:
+        - in: query
+          name: state
+          schema:
+            type: string
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: scope
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tokens"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /publicKey:
+    get:
+      summary: get public key to decrypt access tokens
+      operationId: getPublicKey
+      tags:
+        - auth
+      responses:
+        '200':
+          description: Public key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicKey"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /userInfo:
+    get:
+      summary: get user information
+      operationId: getUserInfo
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - auth
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /refresh:
+    post:
+      summary: generate access token from refresh token
+      operationId: refresh
+      security:
+        - RefreshAuth: [ ]
+      tags:
+        - auth
+      responses:
+        '200':
+          description: Access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/refreshTokens:
+    post:
+      summary: generate refresh token with arbitrary lifetime e.g. for services
+      operationId: generateRefreshToken
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      requestBody:
+        description: Token setup
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminRefreshTokenInfoPost'
+      responses:
+        '200':
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tokens"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    get:
+      summary: list all refresh tokens
+      operationId: listRefreshTokens
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      responses:
+        '200':
+          description: Refresh tokens list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminRefreshTokenList"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/refreshTokens/{tokenId}:
+    delete:
+      summary: generate refresh token with arbitrary lifetime e.g. for services
+      operationId: revokeRefreshToken
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    get:
+      summary: list all refresh tokens
+      operationId: getTokenInfo
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refresh tokens list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminRefreshTokenInfo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/users:
+    post:
+      summary: add new user
+      operationId: adminAddUser
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      requestBody:
+        description: User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+      responses:
+        '200':
+          description: User Info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    get:
+      summary: list all users
+      operationId: adminListUsers
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoList"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /admin/users/{userId}:
+    delete:
+      summary: Remove user from the system
+      operationId: adminRemoveUser
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    put:
+      summary: Edit user
+      operationId: adminUserPut
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+      responses:
+        '200':
+          description: User Info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    get:
+      summary: Get user info
+      operationId: adminGetUserInfo
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User Info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+
+
+  /admin/groups:
+    post:
+      summary: add new group
+      operationId: adminAddGroup
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      requestBody:
+        description: User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupPost'
+      responses:
+        '200':
+          description: User Info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupFull"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    get:
+      summary: list all groups
+      operationId: adminListGroups
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      responses:
+        '200':
+          description: Groups list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupList"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+
+  /admin/groups/{groupId}:
+    delete:
+      summary: Remove group from the system
+      operationId: adminRemoveGroup
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+    put:
+      summary: Edit group
+      operationId: adminGroupPut
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User parameters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupFull'
+      responses:
+        '200':
+          description: User Info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupFull"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    get:
+      summary: Get group
+      operationId: adminGetGroup
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - admin
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupFull"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  securitySchemes:
+    RefreshAuth:
+      type: http
+      scheme: bearer
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    LoginCredentials:
+      type: object
+      properties:
+        code:
+          type: string
+        codeVerifier:
+          type: string
+        nonce:
+          type: string
+        redirectUri:
+          type: string
+
+    Tokens:
+      type: object
+      properties:
+        refreshToken:
+          $ref: "#/components/schemas/TokenResponse"
+        accessToken:
+          $ref: "#/components/schemas/TokenResponse"
+
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    PublicKey:
+      type: object
+      properties:
+        publicKey:
+          type: string
+
+    AdminRefreshTokenInfo:
+      type: object
+      properties:
+        tokenId:
+          type: string
+        tokenName:
+          type: string
+        expirationDateTime:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupInfo"
+
+    AdminRefreshTokenInfoPost:
+      type: object
+      properties:
+        tokenName:
+          type: string
+        expirationDateTime:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupInfo"
+
+
+    AdminRefreshTokenList:
+      type: object
+      properties:
+        refreshTokenInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminRefreshTokenInfo'
+
+    GroupInfo:
+      type: object
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string
+        mode:
+          type: string
+          enum:
+            - READ
+            - WRITE
+            - ADMIN
+
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        globalRole:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupInfo"
+
+    UserInfoList:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserInfo"
+
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+    UserInGroup:
+      type: object
+      properties:
+        userId:
+          type: string
+        mode:
+          type: string
+          enum:
+            - READ
+            - WRITE
+            - ADMIN
+
+    GroupFull:
+      type: object
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserInGroup"
+
+    GroupList:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupFull"
+
+
+    GroupPost:
+      type: object
+      properties:
+        groupId:
+          type: string
+        description:
+          type: string

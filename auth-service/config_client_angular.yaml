@@ -1,0 +1,6 @@
+ngVersion: 9.0.0
+npmName: auth-client
+supportsES6: true
+typeMappings:
+    Date: "string | Date"
+  

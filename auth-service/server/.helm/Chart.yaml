@@ -1,0 +1,4 @@
+appVersion: "2.0"
+description: "DSM Auth service"
+name: dsm-auth-v2
+version: 2.0.0
