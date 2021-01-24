@@ -1,7 +1,7 @@
 import os
 import connexion
 from mipt_auth_wrapper import get_auth_public_key
-
+import time
 from airport_load_server.functions.const import Const
 
 
@@ -11,9 +11,13 @@ async def set_auth_public_key(app):
 
 
 SERVER_PORT = int(os.getenv('SERVER_PORT', '8080'))
+START_DELAY = int(os.getenv('START_DELAY', '0'))
 
 
 def main():
+    if START_DELAY>0:
+        print(f"Sleeping for {START_DELAY} seconds")
+        time.sleep(START_DELAY)
     options = {
         "swagger_ui": True
     }
