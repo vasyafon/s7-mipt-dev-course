@@ -6,13 +6,14 @@ from authlib.integrations.httpx_client import AsyncOAuth2Client
 
 from auth_server.functions.access_token import generate_access_token
 from auth_server.functions.api_error import ApiError
+from auth_server.functions.google import GoogleOauth
 from auth_server.functions.models import Tokens, TokenResponse, LoginCredentials
 from auth_server.functions.oauth import MyOauth
 from auth_server.functions.refresh_token import generate_refresh_token_by_user
 
 
-async def login(cred: LoginCredentials) -> Tokens:
-    client = MyOauth(access_token=None)
+async def login(cred: LoginCredentials, request=None) -> Tokens:
+    client = GoogleOauth(request)
     try:
         token = await client.fetch_token(client.access_token_url, grant_type='authorization_code', code=cred.code,
                                          code_verifier=cred.code_verifier, redirect_uri=cred.redirect_uri)
@@ -20,7 +21,7 @@ async def login(cred: LoginCredentials) -> Tokens:
     finally:
         await client.aclose()
 
-    user_id = user_info['sub']
+    user_id = user_info['email']
 
     refresh_token = await generate_refresh_token_by_user(user_id)
     access_token, access_token_exp = await generate_access_token(user_id)

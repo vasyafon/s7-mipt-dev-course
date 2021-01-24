@@ -39,7 +39,7 @@ async def login(request: web.Request, body, **kwargs) -> web.Response:
     :type body: dict | bytes
     """
     body = LoginCredentials.parse_obj(body)
-    result = await login_backend(body)
+    result = await login_backend(body, request=request)
     return web.Response(status=200, body=result.json(by_alias=True))
 
 

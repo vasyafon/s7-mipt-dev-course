@@ -27,6 +27,7 @@ class GoogleOauth(AsyncOAuth2Client, AsyncRemoteApp):
         }
         self.client_kwargs = {}
         self.request_token_url = f'https://oauth2.googleapis.com/token'
+        self.access_token_url = self.request_token_url
 
     async def get_session(self, request: web.Request):
         self.session = await get_session(request)
