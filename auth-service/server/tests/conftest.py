@@ -26,8 +26,7 @@ def client(loop, aiohttp_client):
     app = connexion.AioHttpApp(__name__, specification_dir=specification_dir,
                                options=options)
     app.app.cleanup_ctx.extend([
-        get_public_key,
-        manage_logger
+        get_public_key
     ])
     db.init_app(app.app,
                 config=dict(

@@ -10,7 +10,7 @@ from cryptography.fernet import Fernet
 from gino import GinoEngine, GinoConnection
 from gino_aiohttp import Gino
 
-from auth_server.cleanup_ctx import manage_logger, get_public_key
+from auth_server.cleanup_ctx import get_public_key
 from auth_server.const import Const
 
 # from auth_server.functions.auth_db import create_auth_db
@@ -52,8 +52,7 @@ def main():
                 pass_context_arg_name='request')
 
     app.app.cleanup_ctx.extend([
-        get_public_key,
-        manage_logger
+        get_public_key
     ])
 
     app.app.on_startup.append(create_tables)

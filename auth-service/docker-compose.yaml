@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_PASSWORD: "auth-postgres-password"
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5432"]
+        interval: 30s
+        timeout: 10s
+        retries: 5   
+  auth:
+    build: ./server
+    ports:
+      - "8080:8080"
+    env_file:
+      - temp/.env
+    environment:
+      DB_USER: "postgres"
+      DB_PASSWORD: "auth-postgres-password"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_NAME: "postgres"
+      DB_SCHEMA: "public"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    depends_on:
+      - postgres
+    restart: unless-stopped

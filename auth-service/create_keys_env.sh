@@ -1,3 +1,4 @@
+mkdir -p temp
 openssl genpkey -out temp/auth.pem -algorithm rsa -pkeyopt rsa_keygen_bits:2048 
 openssl rsa -in temp/auth.pem -out temp/auth.pub -pubout
 base64 -w0 temp/auth.pem > temp/auth.pem.b64

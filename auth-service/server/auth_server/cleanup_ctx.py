@@ -11,7 +11,3 @@ async def get_public_key(app):
     yield
 
 
-async def manage_logger(app):
-    # logger = Log.get_logger(Const.SERVICE_NAME)
-    yield
-    await logger.shutdown()

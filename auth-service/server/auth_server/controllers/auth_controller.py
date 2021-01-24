@@ -95,6 +95,8 @@ async def refresh(request: web.Request, token_info: dict, **kwargs) -> web.Respo
         user_id = user_info.user_id
     elif 'sub_coro' in token_info:
         user_id = await token_info['sub_coro']
+        if user_id is None:
+            raise ApiError(401, 'Unauthorized')
         token_info['sub'] = user_id
     else:
         raise ApiError(400, 'auth key error')
