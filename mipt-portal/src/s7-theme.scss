@@ -1,0 +1,284 @@
+@import '~@angular/material/theming';
+
+@include mat-core();
+
+$s7-main: (
+  50 : #f8fae0,
+  100 : #edf3b3,
+  200 : #e2eb80,
+  300 : #d6e24d,
+  400 : #cddc26,
+  500 : #c4d600,
+  600 : #bed100,
+  700 : #b6cc00,
+  800 : #afc600,
+  900 : #a2bc00,
+  A100 : #fbffe5,
+  A200 : #f2ffb2,
+  A400 : #eaff7f,
+  A700 : #e6ff65,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #000000,
+    600 : #000000,
+    700 : #000000,
+    800 : #000000,
+    900 : #000000,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+$s7-dark-gray: (
+  50 : #eaebeb,
+  100 : #cbccce,
+  200 : #a9abad,
+  300 : #87898c,
+  400 : #6d6f73,
+  500 : #53565a,
+  600 : #4c4f52,
+  700 : #424548,
+  800 : #393c3f,
+  900 : #292b2e,
+  A100 : #86bef7,
+  A200 : #57a5f3,
+  A400 : #188bff,
+  A700 : #007ffd,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #ffffff,
+    A700 : #ffffff,
+  )
+);
+$s7-smoke: (
+  50 : #eeefef,
+  100 : #d6d7d7,
+  200 : #babcbd,
+  300 : #9ea1a3,
+  400 : #8a8c8f,
+  500 : #75787b,
+  600 : #6d7073,
+  700 : #626568,
+  800 : #585b5e,
+  900 : #45484b,
+  A100 : #b2d5f9,
+  A200 : #83bcf5,
+  A400 : #46a2ff,
+  A700 : #2c96ff,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+$s7-real-gray: (
+  50 : #f4f5f5,
+  100 : #e5e5e6,
+  200 : #d3d4d5,
+  300 : #c1c2c4,
+  400 : #b4b5b7,
+  500 : #a7a8aa,
+  600 : #9fa0a3,
+  700 : #969799,
+  800 : #8c8d90,
+  900 : #7c7d7f,
+  A100 : #ffffff,
+  A200 : #dae2fb,
+  A400 : #a3baff,
+  A700 : #8aa7ff,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #000000,
+    600 : #000000,
+    700 : #000000,
+    800 : #000000,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  ));
+$s7-pistacchio: (
+  50 : #fbfdfc,
+  100 : #f6fbf7,
+  200 : #f0f8f2,
+  300 : #eaf5ed,
+  400 : #e6f2e9,
+  500 : #e1f0e5,
+  600 : #ddeee2,
+  700 : #d9ecde,
+  800 : #d5e9da,
+  900 : #cde5d3,
+  A100 : #ffffff,
+  A200 : #ffffff,
+  A400 : #ffffff,
+  A700 : #ffffff,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #000000,
+    600 : #000000,
+    700 : #000000,
+    800 : #000000,
+    900 : #000000,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+$s7-medina-green: (
+  50 : #eaf3e6,
+  100 : #cbe2c1,
+  200 : #a8cf97,
+  300 : #85bb6d,
+  400 : #6aad4e,
+  500 : #509e2f,
+  600 : #49962a,
+  700 : #408c23,
+  800 : #37821d,
+  900 : #277012,
+  A100 : #b7ffa6,
+  A200 : #8eff73,
+  A400 : #64ff40,
+  A700 : #50ff26,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+$s7-purple: (
+  50 : #eae6ed,
+  100 : #cbc0d3,
+  200 : #a896b6,
+  300 : #856c99,
+  400 : #6b4d83,
+  500 : #512d6d,
+  600 : #4a2865,
+  700 : #40225a,
+  800 : #371c50,
+  900 : #27113e,
+  A100 : #b77aff,
+  A200 : #9c47ff,
+  A400 : #8014ff,
+  A700 : #7300f9,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #ffffff,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #ffffff,
+    A400 : #ffffff,
+    A700 : #ffffff,
+  )
+);
+$s7-bright-red: (
+  50 : #fae5e6,
+  100 : #f2bec1,
+  200 : #e99398,
+  300 : #e0676e,
+  400 : #d9474f,
+  500 : #d22630,
+  600 : #cd222b,
+  700 : #c71c24,
+  800 : #c1171e,
+  900 : #b60d13,
+  A100 : #ffe3e4,
+  A200 : #ffb0b2,
+  A400 : #ff7d80,
+  A700 : #ff6367,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+
+
+
+
+$my-app-primary: mat-palette($s7-main, 500, 900, A700);
+$my-app-accent: mat-palette($s7-real-gray, 500, 900, A100);
+$my-app-warn: mat-palette($s7-bright-red);
+$my-app-pistacchio: mat-palette($s7-pistacchio);
+$my-app-medina-green: mat-palette($s7-medina-green);
+
+
+$my-app-theme: mat-light-theme($my-app-primary, $my-app-accent, $my-app-warn);
+
+$primary: mat-color($my-app-primary);
+$accent: mat-color($my-app-accent,200);
+$warn: mat-color($my-app-warn);
+$pistacchio: mat-color($my-app-pistacchio,500);
+$medina-green: mat-color($my-app-medina-green);
+
+@include angular-material-theme($my-app-theme);
+
+//@import '~@mat-datetimepicker/core/datetimepicker/datetimepicker-theme.scss';
+//
+// Using the $theme variable from the pre-built theme you can call the theming function
+//@include mat-datetimepicker-theme($my-app-theme);

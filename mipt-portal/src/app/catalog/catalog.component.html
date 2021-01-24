@@ -1,0 +1,19 @@
+<div class="catalog-field">
+  <div *ngFor="let item of catalog">
+    <a href="/error" class="card-href">
+      <mat-card class="catalog-card mat-elevation-z8">
+        <img mat-card-image [src]="item.pictureUrl" [alt]="item.name">
+        <mat-card-title>
+          {{item.name}}
+        </mat-card-title>
+        <mat-card-content>
+          <p>
+            {{item.description}}
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </div>
+
+
+</div>

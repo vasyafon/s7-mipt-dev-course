@@ -1,0 +1,16 @@
+<mat-toolbar color="primary" class="mipt-toolbar">
+  <span>
+    MIPT Students Portal
+    </span>
+  <span class="spacer"></span>
+  <ng-container *ngIf="userId">
+    {{userId}}
+  </ng-container>
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+</mat-toolbar>
+<div  class="main-window">
+  <router-outlet></router-outlet>
+</div>
+<simple-notifications></simple-notifications>
