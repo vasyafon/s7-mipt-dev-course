@@ -1,0 +1,9 @@
+connexion[aiohttp,swagger-ui] >= 2.6.0
+swagger-ui-bundle == 0.0.6
+aiohttp_jinja2 == 1.2.0
+asyncpg
+orjson
+
+git+https://github.com/vasyafon/s7-mipt-dev-course.git/#egg=auth-aiohttp-client&subdirectory=auth-service/auth-aiohttp-client
+git+https://github.com/vasyafon/s7-mipt-dev-course.git/#egg=mipt-auth-wrapper&subdirectory=auth-service/auth-wrapper
+git+https://github.com/vasyafon/s7-mipt-dev-course.git/#egg=mipt-api-wrapper&subdirectory=auth-service/api-wrapper

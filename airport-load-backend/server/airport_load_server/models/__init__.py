@@ -1,0 +1,8 @@
+# coding: utf-8
+
+# import models into model package
+from airport_load_server.models.api_error import ApiError
+from airport_load_server.models.brief_airport_load_info import BriefAirportLoadInfo
+from airport_load_server.models.detailed_airport_load_info import DetailedAirportLoadInfo
+from airport_load_server.models.flight_airport_load_info import FlightAirportLoadInfo
+from airport_load_server.models.global_load_info import GlobalLoadInfo

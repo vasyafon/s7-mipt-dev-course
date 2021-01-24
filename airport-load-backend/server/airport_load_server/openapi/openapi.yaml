@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  license:
+    name: MIT
+  title: API to show passenger load in airports
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/api/airportLoad/v1
+paths:
+  /airport/{airportCode}:
+    get:
+      operationId: get_airport_information
+      parameters:
+      - explode: false
+        in: path
+        name: airportCode
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedAirportLoadInfo'
+          description: Detailed information on pax load
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: get detailed information in seelcted airport
+      tags:
+      - airport
+      x-openapi-router-controller: airport_load_server.controllers.airport_controller
+  /global:
+    get:
+      operationId: get_global_info
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalLoadInfo'
+          description: Global Info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+          description: unexpected error
+      security:
+      - BearerAuth: []
+      summary: get global situation in all airports
+      tags:
+      - global
+      x-openapi-router-controller: airport_load_server.controllers.global_controller
+  /health/liveness:
+    get:
+      operationId: health_liveness_get
+      responses:
+        "200":
+          description: OK
+      summary: liveness probe
+      tags:
+      - health
+      x-openapi-router-controller: airport_load_server.controllers.health_controller
+  /health/readiness:
+    get:
+      operationId: health_readiness_get
+      responses:
+        "200":
+          description: OK
+      summary: readiness probe
+      tags:
+      - health
+      x-openapi-router-controller: airport_load_server.controllers.health_controller
+components:
+  schemas:
+    ApiError:
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    BriefAirportLoadInfo:
+      example:
+        paxLoad: 0
+        longititude: 1.4658129805029452
+        latitude: 6.027456183070403
+        airportCode: airportCode
+      properties:
+        airportCode:
+          type: string
+        paxLoad:
+          type: integer
+        latitude:
+          type: number
+        longititude:
+          type: number
+      required:
+      - airportCode
+      type: object
+    GlobalLoadInfo:
+      example:
+        data:
+        - paxLoad: 0
+          longititude: 1.4658129805029452
+          latitude: 6.027456183070403
+          airportCode: airportCode
+        - paxLoad: 0
+          longititude: 1.4658129805029452
+          latitude: 6.027456183070403
+          airportCode: airportCode
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/BriefAirportLoadInfo'
+          type: array
+      type: object
+    FlightAirportLoadInfo:
+      example:
+        flightNo: 3
+        infantsCLoad: 1
+        childrenYLoad: 7
+        childrenCLoad: 1
+        scheduledDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+        estimatedDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+        paxYLoad: 2
+        airportCode: airportCode
+        paxCLoad: 4
+        infantsYLoad: 1
+      properties:
+        flightNo:
+          type: integer
+        airportCode:
+          type: string
+        paxYLoad:
+          type: integer
+        paxCLoad:
+          type: integer
+        childrenYLoad:
+          type: integer
+        childrenCLoad:
+          type: integer
+        infantsYLoad:
+          type: integer
+        infantsCLoad:
+          type: integer
+        scheduledDepDatetimeUTC:
+          format: date-time
+          type: string
+        estimatedDepDatetimeUTC:
+          format: date-time
+          type: string
+      required:
+      - airportCode
+      - flightNo
+      type: object
+    DetailedAirportLoadInfo:
+      example:
+        infantsCLoad: 2
+        childrenYLoad: 1
+        childrenCLoad: 5
+        longititude: 9.301444243932576
+        latitude: 7.061401241503109
+        paxYLoad: 0
+        airportCode: airportCode
+        paxCLoad: 6
+        infantsYLoad: 5
+        flights:
+        - flightNo: 3
+          infantsCLoad: 1
+          childrenYLoad: 7
+          childrenCLoad: 1
+          scheduledDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+          estimatedDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+          paxYLoad: 2
+          airportCode: airportCode
+          paxCLoad: 4
+          infantsYLoad: 1
+        - flightNo: 3
+          infantsCLoad: 1
+          childrenYLoad: 7
+          childrenCLoad: 1
+          scheduledDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+          estimatedDepDatetimeUTC: 2000-01-23T04:56:07.000+00:00
+          paxYLoad: 2
+          airportCode: airportCode
+          paxCLoad: 4
+          infantsYLoad: 1
+      properties:
+        airportCode:
+          type: string
+        paxYLoad:
+          type: integer
+        paxCLoad:
+          type: integer
+        childrenYLoad:
+          type: integer
+        childrenCLoad:
+          type: integer
+        infantsYLoad:
+          type: integer
+        infantsCLoad:
+          type: integer
+        latitude:
+          type: number
+        longititude:
+          type: number
+        flights:
+          items:
+            $ref: '#/components/schemas/FlightAirportLoadInfo'
+          type: array
+      required:
+      - airportCode
+      type: object
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      type: http
+      x-bearerInfoFunc: airport_load_server.controllers.security_controller_.info_from_BearerAuth

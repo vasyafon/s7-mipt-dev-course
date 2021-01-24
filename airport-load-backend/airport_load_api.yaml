@@ -1,0 +1,176 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: API to show passenger load in airports
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080/api/airportLoad/v1
+
+paths:
+  /health/liveness:
+    get:
+      summary: liveness probe
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+  /health/readiness:
+    get:
+      summary: readiness probe
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+
+  /global:
+    get:
+      summary: get global situation in all airports
+      operationId: getGlobalInfo
+      security:
+        - BearerAuth: []
+      tags:
+        - global
+      responses:
+        '200':
+          description: Global Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalLoadInfo'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /airport/{airportCode}:
+    get:
+      summary: get detailed information in seelcted airport
+      operationId: getAirportInformation
+      parameters:
+        - name: airportCode
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      tags:
+        - airport
+      responses:
+        '200':
+          description: Detailed information on pax load
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedAirportLoadInfo'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+    BriefAirportLoadInfo:
+      type: object
+      required:
+        - airportCode
+      properties:
+        airportCode:
+          type: string
+        paxLoad:
+          type: integer
+        latitude:
+          type: number
+        longititude:
+          type: number
+
+    GlobalLoadInfo:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BriefAirportLoadInfo'
+
+    FlightAirportLoadInfo:
+      type: object
+      required:
+        - flightNo
+        - airportCode
+      properties:
+        flightNo:
+          type: integer
+        airportCode:
+          type: string
+        paxYLoad:
+          type: integer
+        paxCLoad:
+          type: integer
+        childrenYLoad:
+          type: integer
+        childrenCLoad:
+          type: integer
+        infantsYLoad:
+          type: integer
+        infantsCLoad:
+          type: integer
+        scheduledDepDatetimeUTC:
+          type: string
+          format: date-time
+        estimatedDepDatetimeUTC:
+          type: string
+          format: date-time
+
+    DetailedAirportLoadInfo:
+      type: object
+      required:
+        - airportCode
+      properties:
+        airportCode:
+          type: string
+        paxYLoad:
+          type: integer
+        paxCLoad:
+          type: integer
+        childrenYLoad:
+          type: integer
+        childrenCLoad:
+          type: integer
+        infantsYLoad:
+          type: integer
+        infantsCLoad:
+          type: integer
+        latitude:
+          type: number
+        longititude:
+          type: number
+        flights:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightAirportLoadInfo'
+
+
