@@ -40,6 +40,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GlobalLoadInfo'
+              example:
+                - airportCode: DME
+                  paxLoad: 123
+                  latitude: 53.34
+                  longitude: 54.22
+                - airportCode: OVB
+                  paxLoad: 123
+                  latitude: 15.34
+                  longitude: 25.22                  
         default:
           description: unexpected error
           content:
@@ -107,6 +116,7 @@ components:
           type: number
         longititude:
           type: number
+    
 
     GlobalLoadInfo:
       type: object
@@ -172,5 +182,4 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FlightAirportLoadInfo'
-
 
