@@ -1,21 +1,10 @@
-import hashlib
-import os
-from typing import List, Dict
 from aiohttp import web
-from aiohttp_session import get_session
-from authlib.integrations.httpx_client import AsyncOAuth2Client
-
 from auth_server.functions.access_token import generate_access_token
-# from auth_server.models.api_error import ApiError
-# from auth_server.models.login_credentials import LoginCredentials
-
-# from auth_server.models.tokens import Tokens
-# from auth_server.models.user_info import UserInfo
 from auth_server import util, Const
 from auth_server.functions.api_error import ApiError
-from auth_server.functions.google import GoogleOauth
-from auth_server.functions.models import LoginCredentials, TokenResponse, PublicKey, UserInfo
-from auth_server.functions.login import login as login_backend
+from auth_server.functions.google import GoogleOauth, redirect_to_google, auth_google
+from auth_server.functions.models import  TokenResponse, PublicKey, UserInfo
+from auth_server.functions.oauth import redirect_to_wsso, auth_wsso
 
 
 async def get_public_key(request: web.Request, **kwargs) -> web.Response:
@@ -33,30 +22,7 @@ async def get_user_info(request: web.Request, token_info: dict, **kwargs) -> web
     return web.Response(status=200, body=token_info['user_info'].json(by_alias=True))
 
 
-async def login(request: web.Request, body, **kwargs) -> web.Response:
-    """Authenticate on WSSO
-    :param body:
-    :type body: dict | bytes
-    """
-    body = LoginCredentials.parse_obj(body)
-    result = await login_backend(body, request=request)
-    return web.Response(status=200, body=result.json(by_alias=True))
-
-
-# async def login_google(request: web.Request, body) -> web.Response:
-#     """Authenticate on Google
-#
-#
-#
-#     :param body:
-#     :type body: dict | bytes
-#
-#     """
-#     body = LoginCredentials.parse_obj(body)
-#     result = await login_backend(body, request=request)
-#     return web.Response(status=200, body=result.json(by_alias=True))
-
-async def auth_google(request: web.Request, state=None, code=None, scope=None) -> web.Response:
+async def auth(request: web.Request, state=None, code=None, scope=None) -> web.Response:
     """Authenticate on Google
     :param state:
     :type state: str
@@ -65,25 +31,18 @@ async def auth_google(request: web.Request, state=None, code=None, scope=None) -
     :param scope:
     :type scope: str
     """
-    session = await get_session(request)
-    if 'state' not in session or session['state'] != state:
-        return web.Response(status=401, body='Invalid state')
-    oauth = GoogleOauth(request=request)
-    result = await oauth.get_token_google(request.url)
+    # result = await auth_google(request, state)
+    result = await auth_wsso(request, state, code)
     return web.Response(status=200, body=result.json(by_alias=True))
 
 
-async def open_google_auth(request: web.Request, ) -> web.Response:
+async def login(request: web.Request, ) -> web.Response:
     """Redirect to Google Authentication
 
     """
-    oauth = GoogleOauth(request=request)
-    google_auth_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
-    uri, state = oauth.create_authorization_url(google_auth_endpoint)
-    session = await get_session(request)
-    session['state'] = state
-    # return web.Response(status=200)
 
+    # uri = await redirect_to_google(request)
+    uri = await redirect_to_wsso(request)
     return web.HTTPFound(uri)
 
 

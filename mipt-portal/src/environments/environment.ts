@@ -5,7 +5,9 @@
 export const environment = {
   production: false,
   authApiBasePath: 'api/auth/v1',
-  applicationBaseUrl: 'http://localhost:4200'
+  applicationBaseUrl: 'http://localhost:4200',
+  ssoMainUrl: 'https://main.dev.sso.s7.aero',
+  ssoClientId: 'ww31tOunLz0p2cv7cfs2cqoSfi4a',
 };
 
 /*

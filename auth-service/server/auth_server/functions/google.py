@@ -5,16 +5,15 @@ from aiohttp_session import get_session
 from authlib.integrations.base_client.async_app import AsyncRemoteApp
 from authlib.integrations.httpx_client import AsyncOAuth2Client
 
-from auth_server.functions.access_token import generate_access_token
-from auth_server.functions.models import ApiError, Tokens, TokenResponse
-from auth_server.functions.refresh_token import generate_refresh_token_by_user
+from auth_server.functions.api_error import ApiError
+from auth_server.functions.refresh_token import create_tokens_object
 
 
 class GoogleOauth(AsyncOAuth2Client, AsyncRemoteApp):
     def __init__(self, request: web.Request = None):
         scope = 'email openid profile'
         redirect_uri = request.scheme + '://' + request.host + str(
-            request.app.router['api_auth_v1_authGoogle_get'].url_for())
+            request.app.router['api_auth_v1_authSso_get'].url_for())
         super(GoogleOauth, self).__init__(
             client_id=os.getenv('GOOGLE_CLIENT_ID', ""),
             client_secret=os.getenv('GOOGLE_CLIENT_SECRET', ""),
@@ -45,18 +44,24 @@ class GoogleOauth(AsyncOAuth2Client, AsyncRemoteApp):
         token = await self.fetch_token(self.request_token_url, authorization_response=str(authorization_response))
         user_info = await self.parse_id_token(token, None)
         user_id = user_info['sub']
+        tokens = await create_tokens_object(user_id)
+        return tokens
 
-        refresh_token = await generate_refresh_token_by_user(user_id)
-        access_token, access_token_exp = await generate_access_token(user_id)
-        if access_token is None:
-            print(f"User {user_id} is not registered in the service")
-            raise ApiError
 
-        return Tokens(
-            refreshToken=TokenResponse(
-                token=str(refresh_token.token_id),
-                expiresAt=refresh_token.expiration_date),
-            accessToken=TokenResponse(
-                token=access_token,
-                expiresAt=access_token_exp)
-        )
+async def redirect_to_google(request: web.Request):
+    oauth = GoogleOauth(request=request)
+    google_auth_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
+    uri, state = oauth.create_authorization_url(google_auth_endpoint)
+    session = await get_session(request)
+    session['state'] = state
+    # return web.Response(status=200)
+    return uri
+
+
+async def auth_google(request: web.Request, state):
+    session = await get_session(request)
+    if 'state' not in session or session['state'] != state:
+        raise ApiError(401, 'Invalid state')
+    oauth = GoogleOauth(request=request)
+    result = await oauth.get_token_google(request.url)
+    return result

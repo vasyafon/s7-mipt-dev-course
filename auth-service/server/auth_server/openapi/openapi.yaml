@@ -404,9 +404,9 @@ paths:
       - admin
       x-openapi-router-controller: auth_server.controllers.admin_controller
       x-codegen-request-body-name: body
-  /authGoogle:
+  /authSso:
     get:
-      operationId: auth_google
+      operationId: auth
       parameters:
       - explode: true
         in: query
@@ -442,7 +442,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiError'
           description: unexpected error
-      summary: Authenticate on Google
+      summary: Authenticate using OpenID redirect
       tags:
       - auth
       x-openapi-router-controller: auth_server.controllers.auth_controller
@@ -467,40 +467,12 @@ paths:
       - health
       x-openapi-router-controller: auth_server.controllers.health_controller
   /login:
-    post:
-      operationId: login
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginCredentials'
-        required: true
-        x-body-name: body
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Tokens'
-          description: User tokens
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
-          description: unexpected error
-      summary: Authenticate on OpenID
-      tags:
-      - auth
-      x-openapi-router-controller: auth_server.controllers.auth_controller
-      x-codegen-request-body-name: body
-  /loginGoogle:
     get:
-      operationId: open_google_auth
+      operationId: login
       responses:
         "302":
-          description: Redirection to Google
-      summary: Redirect to Google Authentication
+          description: Redirection to OpenID Provider
+      summary: Redirect to OpenID Authentication
       tags:
       - auth
       x-openapi-router-controller: auth_server.controllers.auth_controller
@@ -570,22 +542,6 @@ paths:
       x-openapi-router-controller: auth_server.controllers.auth_controller
 components:
   schemas:
-    LoginCredentials:
-      example:
-        redirectUri: redirectUri
-        code: code
-        codeVerifier: codeVerifier
-        nonce: nonce
-      properties:
-        code:
-          type: string
-        codeVerifier:
-          type: string
-        nonce:
-          type: string
-        redirectUri:
-          type: string
-      type: object
     Tokens:
       example:
         accessToken:

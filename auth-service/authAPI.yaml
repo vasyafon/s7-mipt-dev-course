@@ -25,44 +25,18 @@ paths:
           description: OK
 
   /login:
-    post:
-      summary: Authenticate on OpenID
-      operationId: login
-      tags:
-        - auth
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginCredentials'
-      responses:
-        '200':
-          description: User tokens
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Tokens"
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-
-  /loginGoogle:
     get:
-      summary: Redirect to Google Authentication
-      operationId: openGoogleAuth
+      summary: Redirect to OpenID Authentication
+      operationId: login
       tags:
         - auth
       responses:
         '302':
-          description: Redirection to Google
-  /authGoogle:
+          description: Redirection to OpenID Provider
+  /authSso:
     get:
-      summary: Authenticate on Google
-      operationId: authGoogle
+      summary: Authenticate using OpenID redirect
+      operationId: auth
       tags:
         - auth
       parameters:
@@ -536,18 +510,6 @@ components:
       type: http
       scheme: bearer
   schemas:
-    LoginCredentials:
-      type: object
-      properties:
-        code:
-          type: string
-        codeVerifier:
-          type: string
-        nonce:
-          type: string
-        redirectUri:
-          type: string
-
     Tokens:
       type: object
       properties:

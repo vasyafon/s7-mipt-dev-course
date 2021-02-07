@@ -2,13 +2,14 @@ import datetime
 import uuid
 
 import pytz
+
+from auth_server.functions.access_token import generate_access_token
+from auth_server.functions.api_error import ApiError
 from auth_server.functions.connection import PgPool, fetch_all_query, execute_query, fetch_one_query
-from pydantic import BaseModel, UUID4
 from pydantic import BaseModel, constr
 
-from typing import List
-
 from auth_server import Const
+from auth_server.functions.models import Tokens, TokenResponse
 from auth_server.functions.orm_models import db, RefreshTokenOrm
 
 
@@ -54,3 +55,19 @@ async def get_user_id_by_refresh_token(refresh_token: str):
     if token_data is None:
         return None
     return token_data.user_id
+
+
+async def create_tokens_object(user_id) -> Tokens:
+    refresh_token = await generate_refresh_token_by_user(user_id)
+    access_token, access_token_exp = await generate_access_token(user_id)
+    if access_token is None:
+        print(f"User {user_id} is not registered in the service")
+        raise ApiError
+    return Tokens(
+        refreshToken=TokenResponse(
+            token=str(refresh_token.token_id),
+            expiresAt=refresh_token.expiration_date),
+        accessToken=TokenResponse(
+            token=access_token,
+            expiresAt=access_token_exp)
+    )
