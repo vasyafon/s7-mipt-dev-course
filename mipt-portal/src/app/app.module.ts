@@ -7,14 +7,13 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import {OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {Options, SimpleNotificationsModule} from "angular2-notifications";
-import {IndexComponent} from "./index/index.component";
-import {HttpErrorInterceptorService} from "./lib/http-error-interceptor.service";
-import { ErrorPageComponent } from './error-page/error-page.component';
-import { CatalogComponent } from './catalog/catalog.component';
-import {MatCardModule} from "@angular/material/card";
+import {Options, SimpleNotificationsModule} from 'angular2-notifications';
+import {IndexComponent} from './index/index.component';
+import {HttpErrorInterceptorService} from './lib/http-error-interceptor.service';
+import {ErrorPageComponent} from './error-page/error-page.component';
+import {CatalogComponent} from './catalog/catalog.component';
+import {MatCardModule} from '@angular/material/card';
 
 const simpleNotificationOptions: Options = {
   theClass: 'app-simple-notification',
@@ -36,12 +35,10 @@ const simpleNotificationOptions: Options = {
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    OAuthModule.forRoot(),
     SimpleNotificationsModule.forRoot(simpleNotificationOptions),
     MatCardModule,
   ],
   providers: [
-    {provide: OAuthStorage, useValue: sessionStorage},
     {provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptorService, multi: true},
   ],
   bootstrap: [AppComponent]

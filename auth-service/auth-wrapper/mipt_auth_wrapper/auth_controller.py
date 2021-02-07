@@ -4,7 +4,6 @@ import os
 from enum import Enum
 from typing import List, Optional
 import datetime
-
 import auth_aiohttp_client
 import pytz
 from authlib.common.errors import AuthlibBaseError

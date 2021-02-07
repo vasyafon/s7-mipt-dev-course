@@ -54,6 +54,8 @@ def info_from_RefreshAuth(token: str) -> Optional[dict]:
     'sub' or 'uid' will be set in 'user' parameter of your operation function, if there is one.
     Should return None if auth is invalid or does not allow access to called API.
     """
+    if token == 'None':
+        return {}
     try:
         uuid_obj = UUID(token, version=4)
     except ValueError:

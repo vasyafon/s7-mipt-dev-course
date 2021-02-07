@@ -436,6 +436,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Tokens'
           description: User tokens
+        "302":
+          description: Redirection to target site which was specified by redirection query parameters in /login
         default:
           content:
             application/json:
@@ -469,9 +471,21 @@ paths:
   /login:
     get:
       operationId: login
+      parameters:
+      - explode: true
+        in: query
+        name: redirection
+        required: false
+        schema:
+          type: string
+        style: form
       responses:
-        "302":
-          description: Redirection to OpenID Provider
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUrl'
+          description: Redirection URL to OpenID Provider
       summary: Redirect to OpenID Authentication
       tags:
       - auth
@@ -542,6 +556,13 @@ paths:
       x-openapi-router-controller: auth_server.controllers.auth_controller
 components:
   schemas:
+    LoginUrl:
+      example:
+        url: url
+      properties:
+        url:
+          type: string
+      type: object
     Tokens:
       example:
         accessToken:
@@ -797,6 +818,7 @@ components:
       type: object
   securitySchemes:
     RefreshAuth:
+      description: UUID-key for programmatic access, and "None" when trying to use key stored in cookies
       scheme: bearer
       type: http
       x-bearerInfoFunc: auth_server.controllers.security_controller_.info_from_RefreshAuth

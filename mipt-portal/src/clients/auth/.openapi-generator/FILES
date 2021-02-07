@@ -1,5 +1,4 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.module.ts
 api/admin.service.ts
@@ -18,7 +17,7 @@ model/groupFull.ts
 model/groupInfo.ts
 model/groupList.ts
 model/groupPost.ts
-model/loginCredentials.ts
+model/loginUrl.ts
 model/models.ts
 model/publicKey.ts
 model/tokenResponse.ts

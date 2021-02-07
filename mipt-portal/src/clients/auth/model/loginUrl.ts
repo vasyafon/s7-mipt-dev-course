@@ -11,10 +11,7 @@
  */
 
 
-export interface LoginCredentials { 
-    code?: string;
-    codeVerifier?: string;
-    nonce?: string;
-    redirectUri?: string;
+export interface LoginUrl { 
+    url?: string;
 }
 

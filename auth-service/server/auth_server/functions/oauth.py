@@ -7,6 +7,7 @@ from authlib.integrations.base_client.async_app import AsyncRemoteApp
 from authlib.integrations.httpx_client import AsyncOAuth2Client
 
 from auth_server.functions.api_error import ApiError
+from auth_server.functions.models import LoginUrl
 from auth_server.functions.refresh_token import create_tokens_object
 
 auth_base_url = os.getenv('AUTH_BASE_URL', "")
@@ -46,17 +47,21 @@ class MyOauth(AsyncOAuth2Client, AsyncRemoteApp):
         return user_info
 
 
-async def redirect_to_wsso(request: web.Request):
+async def redirect_to_wsso(request: web.Request, redirection):
     oauth = MyOauth(request=request)
     login_endpoint = auth_base_url + "/oauth2/authorize"
     session = await get_session(request)
     code_verifier = token_urlsafe(16)
     nonce = token_urlsafe(16)
+    if redirection is not None:
+        session['redirection'] = redirection
+    elif 'redirection' in session:
+        del session['redirection']
     session['code_verifier'] = code_verifier
     session['nonce'] = nonce
     uri, state = oauth.create_authorization_url(login_endpoint, code_verifier=code_verifier, nonce=nonce)
     session['state'] = state
-    return uri
+    return LoginUrl(url=uri)
 
 
 async def auth_wsso(request: web.Request, state, code):
@@ -68,10 +73,23 @@ async def auth_wsso(request: web.Request, state, code):
         raise ApiError(401, 'Invalid session')
     code_verifier = session['code_verifier']
     nonce = session['nonce']
+    del session['nonce']
+    del session['state']
+    del session['code_verifier']
+
+    redirection = None
+    if 'redirection' in session:
+        redirection = session['redirection']
+        del session['redirection']
+
     oauth = MyOauth(request=request)
     token = await oauth.fetch_token(oauth.access_token_url, grant_type='authorization_code', code=code,
                                     code_verifier=code_verifier)
     result = await oauth.parse_id_token(token, nonce)
     user_id = result['sub']
     tokens = await create_tokens_object(user_id)
-    return tokens
+    session['refresh_token'] = tokens.refresh_token.token
+    if redirection is None:
+        return web.Response(status=200, body=tokens.json(by_alias=True))
+    else:
+        return web.HTTPFound(redirection)

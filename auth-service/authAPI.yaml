@@ -30,9 +30,18 @@ paths:
       operationId: login
       tags:
         - auth
+      parameters:
+        - name: redirection
+          in: query
+          schema:
+            type: string
       responses:
-        '302':
-          description: Redirection to OpenID Provider
+        '200':
+          description: Redirection URL to OpenID Provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUrl'
   /authSso:
     get:
       summary: Authenticate using OpenID redirect
@@ -59,6 +68,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tokens"
+        '302':
+          description: Redirection to target site which was specified by redirection query parameters in /login
         default:
           description: unexpected error
           content:
@@ -504,12 +515,18 @@ paths:
 components:
   securitySchemes:
     RefreshAuth:
+      description: UUID-key for programmatic access, and "None" when trying to use key stored in cookies
       type: http
       scheme: bearer
     BearerAuth:
       type: http
       scheme: bearer
   schemas:
+    LoginUrl:
+      type: object
+      properties:
+        url:
+          type: string
     Tokens:
       type: object
       properties:

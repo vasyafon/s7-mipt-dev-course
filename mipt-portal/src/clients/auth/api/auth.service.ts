@@ -18,7 +18,7 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { ApiError } from '../model/models';
-import { LoginCredentials } from '../model/models';
+import { LoginUrl } from '../model/models';
 import { PublicKey } from '../model/models';
 import { TokenResponse } from '../model/models';
 import { Tokens } from '../model/models';
@@ -90,17 +90,17 @@ export class AuthService {
     }
 
     /**
-     * Authenticate on Google
+     * Authenticate using OpenID redirect
      * @param state 
      * @param code 
      * @param scope 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authGoogle(state?: string, code?: string, scope?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Tokens>;
-    public authGoogle(state?: string, code?: string, scope?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Tokens>>;
-    public authGoogle(state?: string, code?: string, scope?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Tokens>>;
-    public authGoogle(state?: string, code?: string, scope?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+    public auth(state?: string, code?: string, scope?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Tokens>;
+    public auth(state?: string, code?: string, scope?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Tokens>>;
+    public auth(state?: string, code?: string, scope?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Tokens>>;
+    public auth(state?: string, code?: string, scope?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
 
         let queryParameters = new HttpParams({encoder: this.encoder});
         if (state !== undefined && state !== null) {
@@ -136,7 +136,7 @@ export class AuthService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Tokens>(`${this.configuration.basePath}/authGoogle`,
+        return this.httpClient.get<Tokens>(`${this.configuration.basePath}/authSso`,
             {
                 params: queryParameters,
                 responseType: <any>responseType,
@@ -238,17 +238,20 @@ export class AuthService {
     }
 
     /**
-     * Authenticate on OpenID
-     * @param loginCredentials 
+     * Redirect to OpenID Authentication
+     * @param redirection 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public login(loginCredentials: LoginCredentials, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Tokens>;
-    public login(loginCredentials: LoginCredentials, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Tokens>>;
-    public login(loginCredentials: LoginCredentials, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Tokens>>;
-    public login(loginCredentials: LoginCredentials, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
-        if (loginCredentials === null || loginCredentials === undefined) {
-            throw new Error('Required parameter loginCredentials was null or undefined when calling login.');
+    public login(redirection?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<LoginUrl>;
+    public login(redirection?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<LoginUrl>>;
+    public login(redirection?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<LoginUrl>>;
+    public login(redirection?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (redirection !== undefined && redirection !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>redirection, 'redirection');
         }
 
         let headers = this.defaultHeaders;
@@ -266,63 +269,14 @@ export class AuthService {
         }
 
 
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
-
         let responseType: 'text' | 'json' = 'json';
         if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
             responseType = 'text';
         }
 
-        return this.httpClient.post<Tokens>(`${this.configuration.basePath}/login`,
-            loginCredentials,
+        return this.httpClient.get<LoginUrl>(`${this.configuration.basePath}/login`,
             {
-                responseType: <any>responseType,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Redirect to Google Authentication
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public openGoogleAuth(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined}): Observable<any>;
-    public openGoogleAuth(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined}): Observable<HttpResponse<any>>;
-    public openGoogleAuth(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined}): Observable<HttpEvent<any>>;
-    public openGoogleAuth(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined}): Observable<any> {
-
-        let headers = this.defaultHeaders;
-
-        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (httpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-            ];
-            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (httpHeaderAcceptSelected !== undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-
-        let responseType: 'text' | 'json' = 'json';
-        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-            responseType = 'text';
-        }
-
-        return this.httpClient.get<any>(`${this.configuration.basePath}/loginGoogle`,
-            {
+                params: queryParameters,
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

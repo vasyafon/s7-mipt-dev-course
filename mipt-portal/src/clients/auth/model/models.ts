@@ -6,7 +6,7 @@ export * from './groupFull';
 export * from './groupInfo';
 export * from './groupList';
 export * from './groupPost';
-export * from './loginCredentials';
+export * from './loginUrl';
 export * from './publicKey';
 export * from './tokenResponse';
 export * from './tokens';
