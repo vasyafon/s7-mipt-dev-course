@@ -5,7 +5,6 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt requirements_custom.txt /usr/src/app/
 
-ARG PYPI_PASSWORD
 RUN pip3 install --no-cache-dir -r ./requirements.txt
 
 COPY . /usr/src/app

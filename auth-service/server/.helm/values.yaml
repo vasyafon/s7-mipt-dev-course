@@ -15,23 +15,21 @@ env:
     value: "1"
   - name: DB_SCHEMA
     value: "auth"
-  - name: LOGGING_SCHEMA
-    value: "current"
   - name: "PORT"
     value: "8080"
 
 imageCredentials:
-  secretName: dsm-pull-secret
+  secretName: mipt-pull-secret
 
 envFrom:
   - secretRef:
-      name: dsm-auth-db-secret
+      name: auth-db-secret
   - secretRef:
       name: sso-secret
   - secretRef:
       name: flask-secret
   - secretRef:
-      name: dsm-auth-secret
+      name: auth-secret
 containers:
   containerPort: 8080
   readinessProbePath: /api/auth/v2/health/readiness
@@ -39,7 +37,7 @@ containers:
 
 service:
   type: ClusterIP
-  name: dsm-auth-v2
+  name: auth
   port: 8080
 
 ingress:
@@ -47,10 +45,10 @@ ingress:
   tls: true
   hosts:
     - paths:
-        - path: /api/auth/v2
-          serviceName: dsm-auth-v2
+        - path: /api/auth/v1
+          serviceName: auth
   annotations:
-    certmanager.k8s.io/issuer: vault-dsm
+    certmanager.k8s.io/issuer: vault-mipt
 
 
 #   args: []

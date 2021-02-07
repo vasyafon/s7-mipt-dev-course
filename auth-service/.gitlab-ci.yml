@@ -1,0 +1,114 @@
+############
+#gitlab CI/CD Variables:
+#GITLAB_REGISTRY
+#GITLAB_REGISTRY_PUSH_PWD
+#GITLAB_REGISTRY_PUSH_USER
+#GITLAB_REGISTRY_PULL_PWD
+#GITLAB_REGISTRY_PULL_USER
+
+variables:
+  runAsUser: 65534
+  # httpGetCheck: "/"
+  # containerPort: 8080
+  imageTag: "$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+  imageName: "$GITLAB_REGISTRY/$HARBOR_PROJECT_NAME/$CI_PROJECT_NAME"
+  imagePullSecret: "mipt-pull-secret"
+  serviceVersion: "v1"
+
+include:
+ - project: sast/ci-sonar
+   file: sonar.yml
+
+.variables_dev:
+  variables:
+    envName: "DEV"
+    dsmIngressHost: "mipt-portal.common12d24.epaas.s7.aero"
+    # envHostname: "epaas-demo-dev.common11d24.epaas.s7.aero"
+
+
+
+.conditions_dev:
+  #  only:
+  #    - /^feature.*/
+  #    - /^fix.*/
+  #    - /^infra.*/
+  tags:
+    - deploy
+
+
+.deploy_application:
+  script:
+    - helm upgrade --install "$CI_PROJECT_NAME-$serviceVersion" ./server/.helm
+      --set image.repository="$imageName"
+      --set image.tag="$imageTag"
+      --set containers.runAsUser="$runAsUser"
+      --set imageCredentials.secretName="$imagePullSecret"
+      --set ingress.mainHost="$dsmIngressHost"
+      --atomic
+      --wait
+      --timeout 120s
+  #      --debug
+
+.undeploy_application:
+  stage: undeploy
+  script:
+    - helm delete --purge $CI_PROJECT_NAME
+
+
+stages:
+  - build_push
+  - test
+  - deploy_stage
+  - deploy_prod
+  - undeploy
+
+build_push_main:
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+    SERVICE_PORT_2376_TCP_PORT: 2375
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  stage: build_push
+  before_script:
+    - echo docker login -u "$GITLAB_REGISTRY_PUSH_USER"
+    - docker login -u "${GITLAB_REGISTRY_PUSH_USER}" -p "${GITLAB_REGISTRY_PUSH_PWD}" "${GITLAB_REGISTRY}"
+  script:
+    - docker pull $imageName:latest || true
+    - docker build --pull --cache-from $imageName:latest -t $imageName:$imageTag -t $imageName:latest ./server
+    - docker push $imageName:latest
+    - docker push $imageName:$imageTag
+
+  tags:
+    - dind-epaas
+
+sast:
+  extends:
+    - .sonarscanner
+  stage: test
+
+deploy-dev:
+  extends:
+    - .deploy_application
+    - .variables_dev
+    - .conditions_dev
+  stage: deploy_stage
+  when: manual
+  environment:
+    name: $envName
+    url: https://$envHostname
+    on_stop: undeploy-dev
+
+
+undeploy-dev:
+  extends:
+    - .undeploy_application
+    - .variables_dev
+    - .conditions_dev
+  when: manual
+  environment:
+    name: $envName
+    action: stop
+
