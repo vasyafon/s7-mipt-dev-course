@@ -11,7 +11,7 @@ variables:
   # httpGetCheck: "/"
   # containerPort: 8080
   imageTag: "$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
-  imageName: "$GITLAB_REGISTRY/$HARBOR_PROJECT_NAME/$CI_PROJECT_NAME"
+  imageBaseName: "$GITLAB_REGISTRY/$HARBOR_PROJECT_NAME/$CI_PROJECT_NAME"
   imagePullSecret: "mipt-pull-secret"
   serviceVersion: "v1"
 
@@ -22,8 +22,7 @@ include:
 .variables_dev:
   variables:
     envName: "DEV"
-    dsmIngressHost: "mipt-portal.common12d24.epaas.s7.aero"
-    # envHostname: "epaas-demo-dev.common11d24.epaas.s7.aero"
+    ingressHost: "mipt-portal.common12d24.epaas.s7.aero"
 
 
 
@@ -35,39 +34,13 @@ include:
   tags:
     - deploy
 
-
-.deploy_application:
-  script:
-    - helm upgrade --install "$CI_PROJECT_NAME-$serviceVersion" ./server/.helm
-      --set image.repository="$imageName"
-      --set image.tag="$imageTag"
-      --set containers.runAsUser="$runAsUser"
-      --set imageCredentials.secretName="$imagePullSecret"
-      --set ingress.mainHost="$dsmIngressHost"
-      --atomic
-      --wait
-      --timeout 120s
-  #      --debug
-
-.undeploy_application:
-  stage: undeploy
-  script:
-    - helm delete --purge $CI_PROJECT_NAME
-
-
-stages:
-  - build_push
-  - test
-  - deploy_stage
-  - deploy_prod
-  - undeploy
-
-build_push_main:
+.build_push:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
     DOCKER_HOST: tcp://docker:2375
     SERVICE_PORT_2376_TCP_PORT: 2375
+    imageName: $imageBaseName/$service_name
   image: docker:stable
   services:
     - docker:stable-dind
@@ -84,6 +57,42 @@ build_push_main:
   tags:
     - dind-epaas
 
+.deploy_application:
+  script:
+    - helm upgrade --install "$CI_PROJECT_NAME-$service_name-$serviceVersion" ./$subdirectory/$helm_path
+      --set image.repository="$imageBaseName/$service_name"
+      --set image.tag="$imageTag"
+      --set containers.runAsUser="$runAsUser"
+      --set imageCredentials.secretName="$imagePullSecret"
+      --set ingress.mainHost="$ingressHost"
+      --atomic
+      --wait
+      --timeout 120s
+  #      --debug
+
+.undeploy_application:
+  stage: undeploy
+  script:
+    - helm delete --purge "$CI_PROJECT_NAME-$service_name-$serviceVersion"
+
+
+stages:
+  - build_push
+  - test
+  - deploy_stage
+  - deploy_prod
+  - undeploy
+
+#### Auth service
+auth_build_push:
+  stage: build_push
+  variables:
+    subdirectory: auth-service
+    helm_path: server/.helm
+    service_name: auth
+  extends:
+  - .build_push
+
 sast:
   extends:
     - .sonarscanner
@@ -98,7 +107,6 @@ deploy-dev:
   when: manual
   environment:
     name: $envName
-    url: https://$envHostname
     on_stop: undeploy-dev
 
 
